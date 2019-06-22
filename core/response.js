@@ -26,7 +26,7 @@ module.exports = class Response {
     static ApplicationError (res, error) {
         console.error(error);
         let data = {success: false, error: error.message};
-        Response.Send(data, {
+        Response.Send(res, data, {
             statusCode: 500,
             contentType: 'application/json'
         });

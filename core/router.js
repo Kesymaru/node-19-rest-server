@@ -1,5 +1,3 @@
-const querystring = require('querystring');
-
 const Response = require('./response');
 const Route = require('./route')
 const RoutePath = require('./routePath')

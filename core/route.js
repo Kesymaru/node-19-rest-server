@@ -1,3 +1,5 @@
+const querystring = require('querystring');
+
 const Response = require('./response');
 const RoutePath = require('./routePath');
 
@@ -56,15 +58,14 @@ module.exports = class Route {
 
     processPost (req, res) {
         let body = '';
-        let promise = new Promise();
-
         req.on('data', chunck => body += chunck);
-        req.on('end', error => {
-            if(error) return promise.reject(error);
-            promise.resolve(querystring.parse(body));
-        });
 
-        return promise;
+        return new Promise((resolve, reject) => {
+            req.on('end', error => {
+                if(error) return reject(error);
+                resolve(querystring.parse(body));
+            });
+        });
     }
 
     async execute (req, res) {

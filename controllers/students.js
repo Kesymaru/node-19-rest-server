@@ -1,5 +1,5 @@
 const fs = require('fs');
-const FILE_NAME = `${__dirname}/../../inventories/students.json`
+const FILE_NAME = `${__dirname}/../inventories/students.json`
 
 function getAll () {
     let data = require(FILE_NAME);
@@ -24,7 +24,7 @@ function create (route) {
 }
 
 function getOne(route) {
-    let {id} = route.params;
+    let id = +route.params.id;
     let students = require(FILE_NAME);
 
     let student = students.data.find(student => student.id === id);
