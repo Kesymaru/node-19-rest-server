@@ -1,14 +1,17 @@
 module.exports = class Response {
     static Options () {
         return {
-            statusCode: 200,
-            contentType: 'application/json'
+            'Status-Code': 200,
+            'Content-Type': 'application/json'
         }
     }
 
-    static Send (res, data, options = Response.Options()) {
-        res.statusCode = options.statusCode;
-        res.setHeader('Content-Type', options.contentType);
+    static Send (res, data, options = {}) {
+        options = Object.assign(Response.Options(), options);
+
+        Object.keys(options).forEach(h => res.setHeader(h, options[h]));
+        // res.statusCode = options.statusCode;
+        // res.setHeader('Content-Type', options.contentType);
 
         let response = data;
         if(typeof data !== 'string') response = JSON.stringify(data);

@@ -73,11 +73,9 @@ module.exports = class Route {
 
         try {
             if(this.method === 'POST') this.body = await this.processPost(req, res);
-            data = await this.controller(this);
+            await this.controller(req, res, this);
         } catch (err) {
             Response.ApplicationError(res, err);
         }
-
-        Response.Send(res, data);
     }
 }

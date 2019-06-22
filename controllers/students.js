@@ -1,12 +1,14 @@
 const fs = require('fs');
 const FILE_NAME = `${__dirname}/../inventories/students.json`
 
-function getAll () {
-    let data = require(FILE_NAME);
-    return Promise.resolve(data.data);
+const Response = require('../core/response');
+
+function getAll (req, res) {
+    let students = require(FILE_NAME);
+    Response.Send(res, students.data);
 }
 
-function create (route) {
+function create (req, res, route) {
     let data = route.body;
     if(!data) throw new Error(`Invalid data.`);
     if(!data.name) throw new Error(`Name required: ${data.name}.`);
@@ -18,39 +20,42 @@ function create (route) {
     data.id = ++students.counter;
     students.data.push(data);
 
-    return new Promise((resolve, reject) => {
-        fs.writeFile(FILE_NAME, JSON.stringify(students), err => err ? reject(err) : resolve(data));
+    fs.writeFile(FILE_NAME, JSON.stringify(students), err => {
+        if(err) return Response.ApplicationError(res, err);
+        Response.Send(res, data);
     });
 }
 
-function getOne(route) {
+function getOne(req, res, route) {
     let id = +route.params.id;
     let students = require(FILE_NAME);
 
     let student = students.data.find(student => student.id === id);
-    if(student) return Promise.resolve(student);
-    return Promise.reject(new Error(`Students ID: ${id} not found`))
+    if(student) return Response.Send(res, student);
+
+    Response.ApplicationError(res, new Error(`Students ID: ${id} not found`))
 }
 
-function update (route) {
+function update (req, res, route) {
     let {id} = route.params;
 
-    Promise.resolve({id});
+    Response.Send(res, {id});
 }
 
-function report () {
-    let data = require(FILE_NAME);
-    let text = data
+function report (req, res, route) {
+    let students = require(FILE_NAME);
+    let data = students.data
         .reduce((t, student, i) => {
             Object.keys(student).forEach(key => {
                 t += `${key}:${student[key]}`;
-                t += i < data.length ? '\n' : '';
+                t += i < students.data.length ? '\n' : '';
             });
             return t;
         }, '');
 
-    console.log('data', text);
-    Promise.resolve(text);
+    Response.Send(res, data, {
+        'contentType': 'text/csv'
+    });
 }
 
 module.exports = {

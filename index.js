@@ -11,6 +11,11 @@ const routes = [
     },
     {
         method: 'GET',
+        path: '/api/v1/students/report',
+        controller: students.report
+    },
+    {
+        method: 'GET',
         path: 'api/v1/students/:id',
         controller: students.getOne,
     },
@@ -24,11 +29,6 @@ const routes = [
         path: '/api/v1/students/:id',
         controller: students.updated
     },
-    {
-        method: 'GET',
-        path: '/api/v1/students/report',
-        controller: students.report
-    }
 ];
 
 const server = http.createServer(Router.Register(routes));
