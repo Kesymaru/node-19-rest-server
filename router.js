@@ -1,9 +1,10 @@
 // router singleton
+const querystring = require('querystring');
+
 let instance = null;
 module.exports = class Router {
     constructor(routes) {
         this.routes = routes;
-
         this.routes.map(route => Object.assign(route, {
             paths: this.splitPath(route.path)
         }))
@@ -16,27 +17,43 @@ module.exports = class Router {
     route (req, res) {
         this.req = req;
         this.res = res;
-
-        //let url = new URL(this.req.url);
         let path = this.req.url;
         let method = this.req.method;
 
         let route = this.check(path, method);
         if(!route) return this.badRequest(new Error(`Bad Request: ${method} ${path}`));
-        let data = route.controller(this.req, this.res, route);
+        if(method === 'POST') {
+            let body = '';
+            this.req.on('data', chunck => body += chunck);
+            this.req.on('end', () => {
+                route.body = querystring.parse(body);
+                this.getControllerData(route);
+            });
+        }
+        else this.getControllerData(route)
+    }
 
-        this.response(data);
+    async getControllerData (route, data = null) {
+        try {
+            route.data = await route.controller(this.req, this.res, route);
+            this.response({
+                success: true,
+                data: route.data
+            });
+        } catch(err){
+            this.badRequest(err);
+        }
     }
 
     check (path, method) {
-        let regex = /\:/gi;
+        let regex = /\:\w/i;
         let paths = this.splitPath(path);
 
         let route = this.routes
-            .map(route => {
-                route.paths = route.paths.map((r, i) => regex.test(r) && paths[i] ? paths[i] : r);
-                return route;
-            })
+            .filter(route => route.method === method && route.paths[0] === paths[0])
+            .map(route => Object.assign({}, route, {
+                paths: route.paths.map((r, i) => regex.test(r) && paths[i] ? paths[i] : r)
+            }))
             .find(route => route.method === method && '/'+route.paths.join('/') === path);
 
         return route;
@@ -49,9 +66,8 @@ module.exports = class Router {
     }
 
     badRequest (error) {
-        this.res.statusCode = 404;
-        this.res.setHeader('Content-Type', 'text/html');
-        this.res.end(error.message);
+        let data = {success: false, error: error.message};
+        this.response(data, {statusCode: 500, contentType: 'application/json'});
     }
 
     static Register(routes) {
