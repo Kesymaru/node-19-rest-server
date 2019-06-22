@@ -1,7 +1,7 @@
 const http = require('http');
 
-const Router = require('./router.js');
-const students = require('./students.js')
+const Router = require('./core/router.js');
+const students = require('./controllers/students.js')
 
 const routes = [
     {
@@ -24,6 +24,11 @@ const routes = [
         path: '/api/v1/students/:id',
         controller: students.updated
     },
+    {
+        method: 'GET',
+        path: '/api/v1/students/report',
+        controller: students.report
+    }
 ];
 
 const server = http.createServer(Router.Register(routes));

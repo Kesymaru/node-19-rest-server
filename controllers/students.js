@@ -1,12 +1,12 @@
 const fs = require('fs');
-const FILE_NAME = `${__dirname}/inventories/students.json`
+const FILE_NAME = `${__dirname}/../../inventories/students.json`
 
-function getAll (req, res, route) {
+function getAll () {
     let data = require(FILE_NAME);
-    return data.data;
+    return Promise.resolve(data.data);
 }
 
-function create (req, res, route) {
+function create (route) {
     let data = route.body;
     if(!data) throw new Error(`Invalid data.`);
     if(!data.name) throw new Error(`Name required: ${data.name}.`);
@@ -23,16 +23,34 @@ function create (req, res, route) {
     });
 }
 
-function getOne(req, res, route) {
+function getOne(route) {
+    let {id} = route.params;
     let students = require(FILE_NAME);
-    let id = +route.paths[route.paths.length-1];
 
     let student = students.data.find(student => student.id === id);
     if(student) return Promise.resolve(student);
     return Promise.reject(new Error(`Students ID: ${id} not found`))
 }
 
-function update (req, res, data) {
+function update (route) {
+    let {id} = route.params;
+
+    Promise.resolve({id});
+}
+
+function report () {
+    let data = require(FILE_NAME);
+    let text = data
+        .reduce((t, student, i) => {
+            Object.keys(student).forEach(key => {
+                t += `${key}:${student[key]}`;
+                t += i < data.length ? '\n' : '';
+            });
+            return t;
+        }, '');
+
+    console.log('data', text);
+    Promise.resolve(text);
 }
 
 module.exports = {
@@ -40,4 +58,5 @@ module.exports = {
     getOne,
     create,
     update,
+    report,
 };
