@@ -3,6 +3,8 @@ const FILE_NAME = `${__dirname}/../inventories/students.json`
 
 const Response = require('../core/response');
 
+const SANITIZE = ['id'];
+
 function getAll (req, res) {
     let students = require(FILE_NAME);
     Response.Send(res, students.data);
@@ -20,26 +22,55 @@ function create (req, res, route) {
     data.id = ++students.counter;
     students.data.push(data);
 
-    fs.writeFile(FILE_NAME, JSON.stringify(students), err => {
-        if(err) return Response.ApplicationError(res, err);
-        Response.Send(res, data);
+    save(students)
+        .then(() => Response.Send(res, data))
+        .catch(err => Response.ApplicationError(res, err));
+}
+
+function save (students) {
+    return new Promise((resolve, reject) => {
+        fs.writeFile(FILE_NAME, JSON.stringify(students), err => err ? reject(err) : resolve(students));
     });
 }
 
 function getOne(req, res, route) {
     let id = +route.params.id;
-    let students = require(FILE_NAME);
 
-    let student = students.data.find(student => student.id === id);
+    let student = findById(id);
     if(student) return Response.Send(res, student);
 
-    Response.ApplicationError(res, new Error(`Students ID: ${id} not found`))
+    Response.ApplicationError(res, new Error(`Students ID: ${id} not found`));
 }
 
-function update (req, res, route) {
-    let {id} = route.params;
+function findById (id) {
+    let students = require(FILE_NAME);
+    return students.data.find(student => student.id === id);
+}
 
-    Response.Send(res, {id});
+function sanitize (student) {
+    SANITIZE.forEach(k => delete student[k]);
+}
+
+function updateOne (req, res, route) {
+    let id = +route.params.id;
+    let body = route.body;
+
+    let student = findById(id);
+    if(student) return Response.Send(res, student);
+
+    let students = require(FILE_NAME);
+    Object.assign(student, sanitize(body));
+
+    let idx = students.data.findIndex(s => s.id === id);
+    if(idx > -1) {
+        students.data[idx] = student;
+
+        save(students)
+            .then(() => Response.Send(res, student))
+            .catch(err => Response.ApplicationError(res, err));
+    }
+
+    Response.ApplicationError(res, new Error(`Students ID: ${id} not found`));
 }
 
 function report (req, res, route) {
@@ -62,6 +93,6 @@ module.exports = {
     getAll,
     getOne,
     create,
-    update,
+    updateOne,
     report,
 };

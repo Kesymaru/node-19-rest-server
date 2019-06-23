@@ -69,10 +69,9 @@ module.exports = class Route {
     }
 
     async execute (req, res) {
-        let data = null;
-
         try {
-            if(this.method === 'POST') this.body = await this.processPost(req, res);
+            if(this.method === 'POST' | this.method === 'PUT')
+                this.body = await this.processPost(req, res);
             await this.controller(req, res, this);
         } catch (err) {
             Response.ApplicationError(res, err);

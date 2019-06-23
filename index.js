@@ -27,7 +27,7 @@ const routes = [
     {
         method: 'PUT',
         path: '/api/v1/students/:id',
-        controller: students.updated
+        controller: students.updateOne
     },
 ];
 
