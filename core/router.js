@@ -15,7 +15,6 @@ module.exports = class Router {
         if(!found) return Response.BadRequest(res, new Error(`Bad Request: ${method} ${path}`));
 
         let route = found.getInstance(path);
-        console.log("route", route);
         route.execute(req, res);
     }
 
