@@ -9,7 +9,8 @@ module.exports = class Response {
     static Send (res, data, options = {}) {
         options = Object.assign(Response.Options(), options);
 
-        Object.keys(options).forEach(h => res.setHeader(h, options[h]));
+        // Object.keys(options).forEach(h => res.setHeader(h, options[h]));
+        res.writeHead(options['Status-Code'], options);
 
         let response = data;
         if(typeof data !== 'string') response = JSON.stringify(data);

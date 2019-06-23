@@ -8,13 +8,15 @@ module.exports = class Router {
     }
 
     route (req, res) {
-        let path = req.url;
-        let method = req.method;
+        let {url, method} = req;
+        let query = url.split('?');
+        let path = query[0];
+        query = query.length ? query[1] : '';
 
         let found = this.routes.find(r => r.check(path, method));
         if(!found) return Response.BadRequest(res, new Error(`Bad Request: ${method} ${path}`));
 
-        let route = found.getInstance(path);
+        let route = found.getInstance(req, res, path, query);
         route.execute(req, res);
     }
 

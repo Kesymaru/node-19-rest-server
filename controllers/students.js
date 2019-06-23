@@ -4,10 +4,83 @@ const Response = require('../core/response');
 
 const FILE_NAME = `${__dirname}/../inventories/students.json`;
 const FIELDS = ['name', 'age'];
+const SORT_FIELDS = ['name', 'age', 'id'];
+const SORT_ORDER = 'desc'; // asc || desc
+const PAGE_ITEMS = 5;
+const QUERY_FIELDS = ['sortBy', 'sortOrder', 'page', 'pageItems', 'search'];
 
-function getAll (req, res) {
-    let students = require(FILE_NAME);
-    Response.Send(res, students.data);
+function getAll (req, res, route) {
+    let query = sanitize(route.query, QUERY_FIELDS);
+
+    let errors = validateQuery(query);
+    if(errors.length) return Response.BadRequest(res, errors);
+
+    let data = {};
+    let students = require(FILE_NAME).data;
+    let sortOrder = query.sortOrder ? query.sortOrder : SORT_ORDER;
+    let pageItems = query.pageItems ? query.pageItems : PAGE_ITEMS;
+
+    if(query.search) {
+        students = search(students, query.search);
+        data.search = query.search;
+    }
+    if(query.sortBy) {
+        students = sort(students, query.sortBy, sortOrder);
+        data.sortBy = query.sortBy;
+        data.sortOrder = query.sortOrder;
+    }
+    if(query.page){
+        let length = students.length;
+        students = students.slice(query.page === 1 ? 0 : (query.page-1) * pageItems, query.page * pageItems);
+        data.page = query.page;
+        data.pageItems = pageItems;
+        data.total = Math.round(length/pageItems);
+    }
+
+    data.data = students;
+    Response.Send(res, data);
+}
+
+function validateQuery(query) {
+    if(!query) return [];
+
+    let errors = [];
+    if(query.sortBy && !SORT_FIELDS.includes(query.sortBy))
+        errors.push(new Error(`Invalid query param sortBy, available: ${SORT_FIELDS.join(' ')}`));
+    if(query.sortOrder && (query.sortOrder !== 'asc' && query.sortOrder !== 'desc'))
+        errors.push(new Error(`Invalid query param sortOrder, must be "asc" or "desc"`));
+    if(query.page && (+query.page <= 0 || isNaN(+query.page)))
+        errors.push(new Error(`Invalid query page must be a number.`));
+    if(query.pageItems && (+query.pageItems <= 0 || isNaN(+query.pageItems)))
+        errors.push(new Error(`Invalid query pageItems must be a number.`));
+    return errors
+}
+
+function search(data, searchText) {
+    let regex = new RegExp(searchText, 'gi');
+    return data.filter(student => {
+        if(regex.test(student.name)) return true;
+        if(regex.test(student.age)) return true;
+    });
+}
+
+function sort(data, sortBy, sortOrder) {
+    let sorting = {
+        name: (a, b) => a.name.localeCompare(b.name),
+        age: (a, b) => {
+            if(+a.age < +b.age) return -1;
+            if(+a.age > +b.age) return 1;
+            return 0;
+        },
+        id: (a, b) => {
+            if(a.id < b.id) return -1;
+            if(a.id > b.id) return 1;
+            return 0;
+        },
+    }
+    data = data.sort(sorting[sortBy]);
+    if(sortOrder === 'asc') return data.reverse();
+    return data;
 }
 
 function create (req, res, route) {
@@ -56,9 +129,15 @@ function findById (id) {
     return students.data.find(student => student.id === id);
 }
 
-function sanitize (student) {
+function sanitize2 (student) {
     return FIELDS
         .reduce((data, field) => Object.assign(data, {[`${field}`]: student[field]}), {});
+}
+
+function sanitize (source, fields = FIELDS) {
+    return fields
+        .filter(field => source[field])
+        .reduce((data, field) => Object.assign(data, {[`${field}`]: source[field]}), {});
 }
 
 function updateOne (req, res, route) {

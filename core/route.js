@@ -1,4 +1,5 @@
 const querystring = require('querystring');
+const URLSearchParams = require('url').URLSearchParams
 
 const Response = require('./response');
 const RoutePath = require('./routePath');
@@ -8,9 +9,10 @@ module.exports = class Route {
         if(!config) throw new Error(`Invalid Route: ${config}`);
 
         this.path = config.path;
-
         this.paths = this.split();
+
         this.matched = config.matched ? this.split(config.matched) : [];
+        this.query = config.query ? this.parseQuery(config.query) : {};
 
         this.method = config.method;
         this.controller = config.controller;
@@ -20,6 +22,15 @@ module.exports = class Route {
         return path.split('/')
             .filter(p => !!p)
             .map((p, i) => new RoutePath(p, i));
+    }
+
+    parseQuery (queryString) {
+        let query = new URLSearchParams(queryString);
+        let data = {};
+        for (const [name, value] of query) {
+            data[name] = value;
+        }
+        return data;
     }
 
     check (path, method) {
@@ -38,10 +49,11 @@ module.exports = class Route {
         return matched;
     }
 
-    getInstance (path) {
+    getInstance (req, res, path, query = '') {
         return new Route({
             path: this.path,
             matched: path,
+            query: query,
             method: this.method,
             controller: this.controller,
         });
