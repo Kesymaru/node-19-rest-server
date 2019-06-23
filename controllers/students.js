@@ -34,7 +34,7 @@ function getAll (req, res, route) {
         students = students.slice(query.page === 1 ? 0 : (query.page-1) * pageItems, query.page * pageItems);
         data.page = query.page;
         data.pageItems = pageItems;
-        data.total = Math.round(length/pageItems);
+        data.totalPages = Math.ceil(length/pageItems);
     }
 
     data.data = students;
