@@ -1,9 +1,9 @@
 const fs = require('fs');
-const FILE_NAME = `${__dirname}/../inventories/students.json`
 
 const Response = require('../core/response');
 
-const SANITIZE = ['id'];
+const FILE_NAME = `${__dirname}/../inventories/students.json`;
+const FIELDS = ['name', 'age'];
 
 function getAll (req, res) {
     let students = require(FILE_NAME);
@@ -11,20 +11,32 @@ function getAll (req, res) {
 }
 
 function create (req, res, route) {
-    let data = route.body;
-    if(!data) throw new Error(`Invalid data.`);
-    if(!data.name) throw new Error(`Name required: ${data.name}.`);
-    if(!data.age) throw new Error(`Age required: ${data.age}.`);
-    if(isNaN(+data.age)) throw new Error(`Age must be an number: ${data.age}.`);
+    let student = sanitize(route.body);
+    let errors = validate(student);
+
+    if(errors.length){
+        let message = errors.reduce((m, err) => m += err.message + "\n", '');
+        return Response.ApplicationError(res, new Error(message));
+    }
 
     let students = require(FILE_NAME);
-
-    data.id = ++students.counter;
-    students.data.push(data);
+    student.id = ++students.counter;
+    students.data.push(student);
 
     save(students)
-        .then(() => Response.Send(res, data))
+        .then(() => Response.Send(res, student))
         .catch(err => Response.ApplicationError(res, err));
+}
+
+function validate(student) {
+    let errors = [];
+
+    if(!student) errors.push(new Error(`Invalid data.`));
+    if(!student.name) errors.push(new Error(`Name required: ${student.name}.`));
+    if(!student.age) errors.push(new Error(`Age required: ${student.age}.`));
+    if(isNaN(+student.age)) errors.push(new Error(`Age must be an number: ${data.age}.`));
+
+    return errors;
 }
 
 function save (students) {
@@ -48,29 +60,27 @@ function findById (id) {
 }
 
 function sanitize (student) {
-    SANITIZE.forEach(k => delete student[k]);
+    return FIELDS
+        .reduce((data, field) => Object.assign(data, {[`${field}`]: student[field]}), {});
 }
 
 function updateOne (req, res, route) {
     let id = +route.params.id;
-    let body = route.body;
+    let body = sanitize(route.body);
 
     let student = findById(id);
-    if(student) return Response.Send(res, student);
+    if(!student) return Response.ApplicationError(res, new Error(`Students ID: ${id} not found`));
 
     let students = require(FILE_NAME);
-    Object.assign(student, sanitize(body));
+    Object.assign(student, body); // update the student
 
     let idx = students.data.findIndex(s => s.id === id);
-    if(idx > -1) {
-        students.data[idx] = student;
+    if(idx < -1) return Response.ApplicationError(res, new Error(`Could not update student ID: ${id}`));
 
-        save(students)
-            .then(() => Response.Send(res, student))
-            .catch(err => Response.ApplicationError(res, err));
-    }
-
-    Response.ApplicationError(res, new Error(`Students ID: ${id} not found`));
+    students.data[idx] = student;
+    save(students)
+        .then(() => Response.Send(res, student))
+        .catch(err => Response.ApplicationError(res, err));
 }
 
 function report (req, res, route) {
