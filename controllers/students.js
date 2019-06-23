@@ -14,10 +14,7 @@ function create (req, res, route) {
     let student = sanitize(route.body);
     let errors = validate(student);
 
-    if(errors.length){
-        let message = errors.reduce((m, err) => m += err.message + "\n", '');
-        return Response.ApplicationError(res, new Error(message));
-    }
+    if(errors.length) return Response.BadRequest(res, errors);
 
     let students = require(FILE_NAME);
     student.id = ++students.counter;
@@ -31,10 +28,10 @@ function create (req, res, route) {
 function validate(student) {
     let errors = [];
 
-    if(!student) errors.push(new Error(`Invalid data.`));
-    if(!student.name) errors.push(new Error(`Name required: ${student.name}.`));
-    if(!student.age) errors.push(new Error(`Age required: ${student.age}.`));
-    if(isNaN(+student.age)) errors.push(new Error(`Age must be an number: ${data.age}.`));
+    if(!student) errors.push(new Error(`Invalid student data.`));
+    if(!student.name) errors.push(new Error(`Student name required.`));
+    if(!student.age) errors.push(new Error(`Student age required.`));
+    if(isNaN(+student.age)) errors.push(new Error(`Student age must be an number.`));
 
     return errors;
 }

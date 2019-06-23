@@ -10,28 +10,25 @@ module.exports = class Response {
         options = Object.assign(Response.Options(), options);
 
         Object.keys(options).forEach(h => res.setHeader(h, options[h]));
-        // res.statusCode = options.statusCode;
-        // res.setHeader('Content-Type', options.contentType);
 
         let response = data;
         if(typeof data !== 'string') response = JSON.stringify(data);
         res.end(response);
     }
 
-    static BadRequest (res, error = new Error('Something when wrong!')) {
-        let data = {success: false, error: error.message};
-        Response.Send(data, {
-            statusCode: 404,
-            contentType: 'application/json'
-        });
+    static BadRequest (res, errors = new Error('Something when wrong!')) {
+        Response.Send(res, Response.ErrorMessage(errors), {'Status-Code': 400});
     }
 
-    static ApplicationError (res, error) {
-        console.error(error);
-        let data = {success: false, error: error.message};
-        Response.Send(res, data, {
-            statusCode: 500,
-            contentType: 'application/json'
-        });
+    static ErrorMessage (errors) {
+        let data = {success: false};
+        if(Array.isArray(errors)) data.errors = errors.map(err => err.message);
+        else data.error = errors.message;
+        return data;
+    }
+
+    static ApplicationError (res, errors) {
+        console.error(errors);
+        Response.Send(res, Response.ErrorMessage(errors), {'Status-Code': 500});
     }
 }
