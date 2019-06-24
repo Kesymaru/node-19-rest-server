@@ -3,10 +3,10 @@ const StudentsService = (() => {
     class StudentsService {
         data = [];
         headers = ['name', 'age', 'id'];
-        page = 1;
-        pageItems = 10;
+        page = Config.page;
+        pageItems = Config.pageItems;
         totalPages = 0;
-        sortBy = 'name';
+        sortBy = Config.sortBy;
         sortOrder = Config.sortOrder;
         searchText = '';
 
@@ -24,8 +24,19 @@ const StudentsService = (() => {
             return url;
         }
 
-        getAll () {
+        _reset () {
+            this.page = Config.page;
+            this.pageItems = Config.pageItems;
+            this.totalPages = 0;
+            this.sortBy = Config.sortBy;
+            this.sortOrder = Config.sortOrder;
+            this.searchText = '';
+        }
+
+        getAll (reset) {
+            if(reset) this._reset();
             let url = this._url();
+
             return fetch(url.toString())
                 .then(response => response.json())
                 .then(response => {
@@ -47,7 +58,7 @@ const StudentsService = (() => {
         }
 
         search (searchText) {
-            if(!searchText || searchText.length <= 3)
+            if(!searchText || searchText.length < 3)
                 return new Promise((r, reject) => reject('Invalid search text.'));
             this.searchText = searchText;
 

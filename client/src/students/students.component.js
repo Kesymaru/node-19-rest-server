@@ -8,16 +8,7 @@
         constructor () {
             super();
 
-            this.loading = true;
             this.render();
-
-            StudentsService.getAll()
-                .then(() => {
-                    this.loading = false;
-                    this.renderTbody();
-                    this.renderFooter();
-                })
-                .catch(err => this.renderTbody(err));
         }
 
         _thead () {
@@ -81,7 +72,7 @@
             next.innerText = 'next';
             next.addEventListener('click', () => this.paginate(StudentsService.page + 1));
 
-            let pageItems = Config.pageItems
+            let pageItems = Config.pageItemsOptions
                 .map(i => {
                     let option = document.createElement('option');
                     option.value = i;
@@ -122,10 +113,7 @@
             search.type = 'search';
 
             let timeout = null;
-            search.addEventListener('keyup', () => {
-                clearTimeout(timeout);
-                timeout = setTimeout(() => this.search(search.value), 500);
-            });
+            search.addEventListener('search', () => this.search(search.value));
             return search;
         }
 
@@ -143,6 +131,8 @@
 
             this.appendChild(this.searchInput);
             this.appendChild(this.table);
+
+            this.getAll();
         }
 
         renderTbody (error = null) {
@@ -155,6 +145,18 @@
             let tfoot = this._tfoot();
             this.table.replaceChild(tfoot, this.tfoot);
             this.tfoot = tfoot;
+        }
+
+        getAll () {
+            this.loading = true;
+            this.renderTbody();
+            StudentsService.getAll(true)
+                .then(() => {
+                    this.loading = false;
+                    this.renderTbody();
+                    this.renderFooter();
+                })
+                .catch(err => this.renderTbody(err));
         }
 
         sort (sortBy) {
@@ -185,7 +187,8 @@
         }
 
         search (searchText) {
-            if(searchText.length <= 3) return false;
+            if(!searchText) return this.getAll();
+            if(searchText.length < 3) return false;
 
             this.loading = true;
             this.renderTbody();
