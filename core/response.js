@@ -2,7 +2,8 @@ module.exports = class Response {
     static Options () {
         return {
             'Status-Code': 200,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
         }
     }
 
