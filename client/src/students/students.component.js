@@ -117,7 +117,20 @@
             return td;
         }
 
+        _search () {
+            let search = document.createElement('input');
+            search.type = 'search';
+
+            let timeout = null;
+            search.addEventListener('keyup', () => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => this.search(search.value), 500);
+            });
+            return search;
+        }
+
         render () {
+            this.searchInput = this._search();
             this.thead = this._thead();
             this.tbody = this._tbody();
             this.tfoot = this._tfoot();
@@ -127,6 +140,8 @@
             this.table.appendChild(this.thead)
             this.table.appendChild(this.tbody)
             this.table.appendChild(this.tfoot);
+
+            this.appendChild(this.searchInput);
             this.appendChild(this.table);
         }
 
@@ -161,6 +176,21 @@
             this.renderTbody();
 
             StudentsService.paginate(page, pageItems)
+                .then(() => {
+                    this.loading = false;
+                    this.renderTbody();
+                    this.renderFooter();
+                })
+                .catch(err => this.renderTbody(err));
+        }
+
+        search (searchText) {
+            if(searchText.length <= 3) return false;
+
+            this.loading = true;
+            this.renderTbody();
+
+            StudentsService.search(searchText)
                 .then(() => {
                     this.loading = false;
                     this.renderTbody();
