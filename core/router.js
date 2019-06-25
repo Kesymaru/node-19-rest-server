@@ -13,6 +13,8 @@ module.exports = class Router {
         let path = query[0];
         query = query.length ? query[1] : '';
 
+        if (method === 'OPTIONS') return Response.Send(res, {});
+
         let found = this.routes.find(r => r.check(path, method));
         if(!found) return Response.BadRequest(res, new Error(`Bad Request: ${method} ${path}`));
 

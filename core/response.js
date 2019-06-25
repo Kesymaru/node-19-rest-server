@@ -1,14 +1,13 @@
+const HEADERS = {
+    'Status-Code': 200,
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Authorization',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
+};
 module.exports = class Response {
-    static Options () {
-        return {
-            'Status-Code': 200,
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-        }
-    }
-
     static Send (res, data, options = {}) {
-        options = Object.assign(Response.Options(), options);
+        options = Object.assign({}, HEADERS, options);
 
         // Object.keys(options).forEach(h => res.setHeader(h, options[h]));
         res.writeHead(options['Status-Code'], options);
@@ -33,4 +32,5 @@ module.exports = class Response {
         console.error(errors);
         Response.Send(res, Response.ErrorMessage(errors), {'Status-Code': 500});
     }
+
 }
