@@ -2,14 +2,26 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Students</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
-    <app-students></app-students>
+
+    <app-navbar></app-navbar>
+
+    <!--<app-students></app-students>-->
+    <!--<app-student-form></app-student-form>-->
 
     <script src="./src/config.js"></script>
+    <script src="./src/mediator.js"></script>
+    <script src="./src/navigation.js"></script>
+
+    <script src="./src/navbar/navbar.component.js"></script>
 
     <script src="./src/students/students.service.js"></script>
+    <script src="./src/students/student-form.component.js"></script>
     <script src="./src/students/students.component.js"></script>
 </body>
 </html>

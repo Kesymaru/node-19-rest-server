@@ -1,5 +1,4 @@
 const StudentsService = (() => {
-    const instance = null;
     class StudentsService {
         data = [];
         headers = ['name', 'age', 'id'];
@@ -9,6 +8,13 @@ const StudentsService = (() => {
         sortBy = Config.sortBy;
         sortOrder = Config.sortOrder;
         searchText = '';
+
+        Subscritions = Object.freeze({
+            ALL: `STUDENTS_LOADED`,
+            CREATED: `STUDENT_ADDED`,
+            UPDATED: `STUDENT_UPDATED`,
+            REMOVED: `STUDENT_REMOVED`,
+        });
 
         constructor() {}
 
@@ -70,6 +76,59 @@ const StudentsService = (() => {
             if(pageItems) this.pageItems = pageItems;
 
             return this.getAll();
+        }
+
+        create (student) {
+            let params = new URLSearchParams();
+            for (let key in student) {
+                params.append(key, student[key]);
+            }
+            let config = {
+                method: 'POST',
+                body: params.toString()
+            };
+
+            return fetch(`${Config.api}/students`, config)
+                .then(response => {
+                    let promise = response.json();
+                    promise.then(data => Mediator.Publish(this.Subscritions.CREATED, data));
+                    return promise;
+                });
+        }
+
+        update (id, student) {
+            let params = new URLSearchParams();
+            for (let key in student) {
+                params.append(key, student[key]);
+            }
+            let config = {
+                method: 'PUT',
+                body: params.toString()
+            };
+
+            return fetch(`${Config.api}/students/${id}`, config)
+                .then(response => {
+                    let promise = response.json();
+                    promise.then(data => Mediator.Publish(this.Subscritions.UPDATED, data));
+                    return promise;
+                });
+        }
+
+        remove (id) {
+            let params = new URLSearchParams();
+            params.append('id', id);
+
+            let config = {
+                method: 'DELETE',
+                body: params.toString()
+            };
+
+            return fetch(`${Config.api}/students/${id}`, config)
+                .then(response => {
+                    let promise = response.json();
+                    promise.then(data => Mediator.Publish(this.Subscritions.REMOVED, data));
+                    return promise;
+                });
         }
     }
     return new StudentsService();

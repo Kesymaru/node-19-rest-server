@@ -9,6 +9,8 @@
             super();
 
             this.render();
+
+            Mediator.Subscribe(StudentsService.Subscritions.CREATED, () => this.getAll(false));
         }
 
         _thead () {
@@ -59,10 +61,12 @@
 
         _pagination () {
             let td = document.createElement('td');
+            td.className = 'right';
 
             let previous = document.createElement('button');
             if(StudentsService.page === 1) previous.setAttribute('disabled', true);
             previous.innerText = 'Previous';
+            previous.className = 'waves-effect waves-light btn';
             previous.addEventListener('click', () => this.paginate(StudentsService.page - 1));
             td.appendChild(previous);
 
@@ -70,6 +74,7 @@
             if(StudentsService.totalPages > 0 && StudentsService.totalPages === StudentsService.page)
                 next.setAttribute('disabled', true);
             next.innerText = 'next';
+            next.className = 'waves-effect waves-light btn';
             next.addEventListener('click', () => this.paginate(StudentsService.page + 1));
 
             let pageItems = Config.pageItemsOptions
@@ -97,9 +102,12 @@
         }
 
         _tr (student) {
+            let tr = document.createElement('tr');
+            tr.addEventListener('dblclick', () => Navigation.go('students/:id', student));
+
             return Object.keys(student)
                 .map(key => this._td(student[key]))
-                .reduce((tr, td) => tr.appendChild(td).parentElement, document.createElement('tr'));
+                .reduce((row, td) => row.appendChild(td).parentNode, tr);
         }
 
         _td (text) {
@@ -124,6 +132,10 @@
             this.tfoot = this._tfoot();
 
             this.table = document.createElement('table');
+            this.table.classList.add('striped');
+            this.table.classList.add('highlight');
+            this.table.classList.add('centered');
+            this.table.classList.add('responsive-table');
 
             this.table.appendChild(this.thead)
             this.table.appendChild(this.tbody)
@@ -147,10 +159,10 @@
             this.tfoot = tfoot;
         }
 
-        getAll () {
+        getAll (reset = true) {
             this.loading = true;
             this.renderTbody();
-            StudentsService.getAll(true)
+            StudentsService.getAll(reset)
                 .then(() => {
                     this.loading = false;
                     this.renderTbody();
@@ -205,4 +217,5 @@
 
     // register custom html element
     customElements.define(`${Config.prefix}-students`, StudentComponent);
-})()
+    window.StudentComponent = StudentComponent;
+})();

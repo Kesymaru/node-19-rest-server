@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Students</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+<nav>
+    <div class="nav-wrapper">
+        <a href="#" class="brand-logo">Logo</a>
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+            <li><a href="index.html">Students</a></li>
+            <li><a href="create.html">Create Student</a></li>
+        </ul>
+    </div>
+</nav>
+
+<app-students></app-students>
+<app-student-form id="10"></app-student-form>
+
+<script src="./src/config.js"></script>
+<script src="./src/mediator.js"></script>
+
+<script src="./src/students/students.service.js"></script>
+<script src="./src/students/student-form.component.js"></script>
+</body>
+</html>
