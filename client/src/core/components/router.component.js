@@ -1,6 +1,8 @@
 (function () {
     class RouterComponent extends HTMLElement {
         _element = null;
+        _route = null;
+
         constructor(student = null) {
             super();
 
@@ -9,9 +11,11 @@
         }
 
         render () {
-            console.log('render router', NavigationService.active);
+            let route = NavigationService.active;
+            if(this._route && this._route === route) return;
+            this._route = route;
 
-            let element = NavigationService.active.component;
+            let element = this._route.component;
             console.log('router element', element);
 
             if(this._element) this.replaceChild(element, this._element);
