@@ -3,8 +3,6 @@
         constructor(student = null) {
             super();
             this.render();
-
-            MediatorService.Subscribe(NavigationService.Subscritions.CHANGED, this.renderRoute.bind(this));
         }
 
         _menu () {
@@ -40,11 +38,6 @@
 
             this.appendChild(this.nav);
             this.appendChild(this.section);
-        }
-
-        renderRoute (route) {
-            this.section.innerHTML = '';
-            this.section.appendChild(route.component);
         }
     }
 

@@ -7,13 +7,28 @@ const NavigationService = (function () {
         constructor() {
             this.routes = ConfigService.routes.map(route => new Route(route));
             this.title = document.head.querySelector('title');
+
+            this._init();
         }
 
-        init () {
-            let {pathname} = window.location
+        _init () {
+            let {pathname} = window.location;
 
-            // default route
-            return this.routes.find(route => route.default);
+            let route = this.routes.find(r => this._check(r, pathname));
+            route = route ? route : this.routes.find(route => route.default);
+
+            route.active = true;
+            this.active = route;
+
+            window.history.replaceState(route, route.title+' 2', route.link);
+            MediatorService.Publish(this.Subscritions.CHANGED, route);
+        }
+
+        _check (route, pathname) {
+            if (route.path === pathname) return true;
+            let paths = pathname.split('/').filter(p => p);
+            if(paths.length !== route.paths.length) return false;
+            return route.paths.every((p, i) => p.isParam ? true : (p.path === paths[i]));
         }
 
         go (path, params = null) {
@@ -28,6 +43,7 @@ const NavigationService = (function () {
                 return r;
             });
             this.active = route;
+            route.active = true;
 
             window.history.pushState(route, route.title, route.link);
             MediatorService.Publish(this.Subscritions.CHANGED, route);
@@ -45,6 +61,7 @@ const NavigationService = (function () {
             this.default = config.default;
             this.menu = config.menu;
 
+            this.paths = this.path.split('/').map((p, i) => new RoutePath(p, i));
             this.isParam = this._isParam();
             this.active = false;
             this.params = null;
@@ -69,6 +86,19 @@ const NavigationService = (function () {
             if(this.params) Object.keys(this.params)
                 .forEach(p => path = path.replace(`:${p}`, this.params[p]));
             return `${this._origin}/${path}`;
+        }
+    }
+
+    class RoutePath {
+        constructor(path, index) {
+            this.index = index;
+            this.path = path;
+            this.isParam = this._isParam();
+        }
+
+        _isParam () {
+            let regex = /\:\w/i;
+            return regex.test(this.path);
         }
     }
 

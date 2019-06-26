@@ -4,10 +4,13 @@
         constructor(student = null) {
             super();
 
-            window.addEventListener('onpopstate', this.render.bind(this));
+            MediatorService.Subscribe(NavigationService.Subscritions.CHANGED, this.render.bind(this));
+            if(NavigationService.active) this.render();
         }
 
         render () {
+            console.log('render router', NavigationService.active);
+
             let element = NavigationService.active.component;
             console.log('router element', element);
 
@@ -18,5 +21,5 @@
     }
 
     // register custom html element
-    customElements.define(`${ConfigService.prefix}-router`, RouterComponent);
+    customElements.define(`${ConfigService.prefix}-router-outlet`, RouterComponent);
 })()
