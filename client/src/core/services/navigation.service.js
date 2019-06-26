@@ -1,13 +1,19 @@
-const Navigation = (function () {
-    class Navigation {
+const NavigationService = (function () {
+    class NavigationService {
         Subscritions = Object.freeze({
             CHANGED: `NAVIGATION_CHANGED`,
         });
 
         constructor() {
-            this.routes = Config.routes.map(route => new Route(route));
+            this.routes = ConfigService.routes.map(route => new Route(route));
             this.title = document.head.querySelector('title');
-            this.active = this.routes.find(route => route.default);
+        }
+
+        init () {
+            let {pathname} = window.location
+
+            // default route
+            return this.routes.find(route => route.default);
         }
 
         go (path, params = null) {
@@ -23,11 +29,12 @@ const Navigation = (function () {
             });
             this.active = route;
 
-            window.history.pushState(route.title, route.title, route.link);
-            Mediator.Publish(this.Subscritions.CHANGED, route);
+            window.history.pushState(route, route.title, route.link);
+            MediatorService.Publish(this.Subscritions.CHANGED, route);
         }
 
         back () {
+            window.history.back();
         }
     }
 
@@ -42,7 +49,7 @@ const Navigation = (function () {
             this.active = false;
             this.params = null;
 
-            this._href = window.location.href;
+            this._origin = window.location.origin;
             this._component = config.component;
         }
 
@@ -61,9 +68,7 @@ const Navigation = (function () {
             let path = this.path;
             if(this.params) Object.keys(this.params)
                 .forEach(p => path = path.replace(`:${p}`, this.params[p]));
-
-            console.log('path', path);
-            return `${this._href}/${path}`;
+            return `${this._origin}/${path}`;
         }
     }
 
@@ -71,5 +76,5 @@ const Navigation = (function () {
         constructor() { super(); }
     };
 
-    return new Navigation();
+    return new NavigationService();
 })();

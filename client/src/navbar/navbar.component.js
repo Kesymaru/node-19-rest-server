@@ -4,14 +4,14 @@
             super();
             this.render();
 
-            Mediator.Subscribe(Navigation.Subscritions.CHANGED, this.renderRoute.bind(this));
+            MediatorService.Subscribe(NavigationService.Subscritions.CHANGED, this.renderRoute.bind(this));
         }
 
         _menu () {
             let ul = document.createElement('ul');
             ul.className = 'right';
 
-            return Navigation.routes
+            return NavigationService.routes
                 .filter(route => route.menu)
                 .map(route => this._li(route))
                 .reduce((element, li) => element.appendChild(li).parentNode, ul);
@@ -21,7 +21,7 @@
             let li = document.createElement('li');
             let a = document.createElement('a');
             a.innerText = route.title;
-            a.addEventListener('click', () => Navigation.go(route.path));
+            a.addEventListener('click', () => NavigationService.go(route.path));
             li.appendChild(a);
             return li;
         }
@@ -49,5 +49,5 @@
     }
 
     // register custom html element
-    customElements.define(`${Config.prefix}-navbar`, NavbarComponent);
+    customElements.define(`${ConfigService.prefix}-navbar`, NavbarComponent);
 })()

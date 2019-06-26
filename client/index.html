@@ -9,15 +9,18 @@
 </head>
 <body>
 
+    <!-- navbar component -->
     <app-navbar></app-navbar>
 
-    <!--<app-students></app-students>-->
-    <!--<app-student-form></app-student-form>-->
+    <!-- router component to load the content -->
+    <app-router-outlet></app-router-outlet>
 
-    <script src="./src/config.js"></script>
-    <script src="./src/mediator.js"></script>
-    <script src="./src/navigation.js"></script>
+    <script src="./src/core/services/config.service.js"></script>
+    <script src="./src/core/services/mediator.service.js"></script>
+    <script src="./src/core/services/navigation.service.js"></script>
 
+    <script src="./src/core/components/buttons.component.js"></script>
+    <script src="./src/core/components/icon.component.js"></script>
     <script src="./src/navbar/navbar.component.js"></script>
 
     <script src="./src/students/students.service.js"></script>

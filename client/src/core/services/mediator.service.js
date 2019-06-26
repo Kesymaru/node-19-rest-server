@@ -1,4 +1,4 @@
-const Mediator = (function () {
+const MediatorService = (function () {
     // private variables
     const TOPICS = {};
 

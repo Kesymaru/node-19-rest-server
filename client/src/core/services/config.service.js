@@ -1,4 +1,4 @@
-const Config = (function(){
+const ConfigService = (function(){
     const prefix = 'app';
     const ROUTES = [
         {
