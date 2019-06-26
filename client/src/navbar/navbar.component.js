@@ -52,7 +52,7 @@
             let route = NavigationService.active;
             this.menu.querySelectorAll('li').forEach(li => li.classList.remove('active'));
             let li = this.menu.querySelector(`li[data-path="${route.path}"]`);
-            li.classList.add('active');
+            if(li) li.classList.add('active');
         }
     }
 
