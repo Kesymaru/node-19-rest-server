@@ -10,7 +10,7 @@
 
             this.render();
 
-            Mediator.Subscribe(StudentsService.Subscritions.CREATED, () => this.getAll(false));
+            MediatorService.Subscribe(StudentsService.Subscritions.CREATED, () => this.getAll(false));
         }
 
         _thead () {
@@ -77,7 +77,7 @@
             next.className = 'waves-effect waves-light btn';
             next.addEventListener('click', () => this.paginate(StudentsService.page + 1));
 
-            let pageItems = Config.pageItemsOptions
+            let pageItems = ConfigService.pageItemsOptions
                 .map(i => {
                     let option = document.createElement('option');
                     option.value = i;
@@ -103,7 +103,7 @@
 
         _tr (student) {
             let tr = document.createElement('tr');
-            tr.addEventListener('dblclick', () => Navigation.go('students/:id', student));
+            tr.addEventListener('dblclick', () => NavigationService.go('students/:id', student));
 
             return Object.keys(student)
                 .map(key => this._td(student[key]))
@@ -216,6 +216,6 @@
     }
 
     // register custom html element
-    customElements.define(`${Config.prefix}-students`, StudentComponent);
+    customElements.define(`${ConfigService.prefix}-students`, StudentComponent);
     window.StudentComponent = StudentComponent;
 })();

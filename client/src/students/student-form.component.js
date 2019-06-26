@@ -30,7 +30,7 @@
                 return schema;
             });
 
-            Mediator.Subscribe(StudentsService.Subscritions.CREATED, () => this.form.reset());
+            MediatorService.Subscribe(StudentsService.Subscritions.CREATED, () => this.form.reset());
 
             this.render();
         }
@@ -60,29 +60,35 @@
             this._error = document.createElement('div');
             this.form.appendChild(this._error);
 
-            let submit = document.createElement('button');
-            submit.type = 'submit';
-            submit.innerText = 'Submit';
-            submit.className = 'waves-effect waves-light btn red';
-            this.form.appendChild(submit);
+            this.form.appendChild(new ButtonComponent({
+                text: 'Submit',
+                type: 'submit',
+                className: 'waves-effect waves-light btn red',
+                events: {
+                    click: () => console.log('click event on button')
+                }
+            }))
 
-            let reset = document.createElement('button');
-            reset.className = 'waves-effect waves-light btn';
-            if(!this.student) {
-                reset.type = 'reset';
-                reset.innerText = 'Reset';
+            let reset = {
+                text: 'Reset',
+                type: 'reset',
+                className: 'waves-effect waves-light btn',
             }
-            else {
-                reset.innerText = 'Cancel';
-                reset.addEventListener('click', () => Navigation.go('students'));
+            if(this.student) {
+                reset.text = 'Cancel';
+                reset.events = {
+                    click: () => NavigationService.go('students')
+                };
 
-                let remove = document.createElement('button');
-                remove.innerText = 'Remove'
-                remove.className = 'waves-effect waves-light btn';
-                remove.addEventListener('click', this.remove.bind(this));
-                this.form.appendChild(remove);
+                this.form.appendChild(new ButtonComponent({
+                    text: 'Remove',
+                    className: 'waves-effect waves-light btn',
+                    events: {
+                        click: this.remove.bind(this)
+                    }
+                }));
             }
-            this.form.appendChild(reset);
+            this.form.appendChild(new ButtonComponent(reset));
 
             this.form.addEventListener('submit', this.submit.bind(this));
             this.appendChild(this.form);
@@ -98,13 +104,13 @@
                 ? StudentsService.update(this.student.id, student)
                 : StudentsService.create(student);
 
-            promise.then(() => Navigation.go('students'))
+            promise.then(() => NavigationService.go('students'))
                 .catch(err => this.showError(err));
         }
 
         remove () {
             StudentsService.remove(this.student.id)
-                .then(() => Navigation.go('students'))
+                .then(() => NavigationService.go('students'))
                 .catch(this.showError.bind(this));
         }
 
@@ -115,6 +121,6 @@
     }
 
     // register custom html element
-    customElements.define(`${Config.prefix}-student-form`, StudentFormComponent);
+    customElements.define(`${ConfigService.prefix}-student-form`, StudentFormComponent);
     window.StudentFormComponent = StudentFormComponent;
 })()

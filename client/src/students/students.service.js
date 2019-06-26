@@ -2,11 +2,11 @@ const StudentsService = (() => {
     class StudentsService {
         data = [];
         headers = ['name', 'age', 'id'];
-        page = Config.page;
-        pageItems = Config.pageItems;
+        page = ConfigService.page;
+        pageItems = ConfigService.pageItems;
         totalPages = 0;
-        sortBy = Config.sortBy;
-        sortOrder = Config.sortOrder;
+        sortBy = ConfigService.sortBy;
+        sortOrder = ConfigService.sortOrder;
         searchText = '';
 
         Subscritions = Object.freeze({
@@ -19,7 +19,7 @@ const StudentsService = (() => {
         constructor() {}
 
         _url () {
-            let url = new URL(`${Config.api}/students`);
+            let url = new URL(`${ConfigService.api}/students`);
 
             if(this.page) url.searchParams.append('page', this.page);
             if(this.pageItems) url.searchParams.append('pageItems', this.pageItems);
@@ -31,11 +31,11 @@ const StudentsService = (() => {
         }
 
         _reset () {
-            this.page = Config.page;
-            this.pageItems = Config.pageItems;
+            this.page = ConfigService.page;
+            this.pageItems = ConfigService.pageItems;
             this.totalPages = 0;
-            this.sortBy = Config.sortBy;
-            this.sortOrder = Config.sortOrder;
+            this.sortBy = ConfigService.sortBy;
+            this.sortOrder = ConfigService.sortOrder;
             this.searchText = '';
         }
 
@@ -56,7 +56,7 @@ const StudentsService = (() => {
 
         sort (sortBy) {
             if(this.sortBy === sortBy) this.sortOrder = this.sortOrder === 'desc' ? 'asc' : 'desc';
-            else this.sortOrder = Config.sortOrder;
+            else this.sortOrder = ConfigService.sortOrder;
 
             this.sortBy = sortBy;
 
@@ -88,10 +88,10 @@ const StudentsService = (() => {
                 body: params.toString()
             };
 
-            return fetch(`${Config.api}/students`, config)
+            return fetch(`${ConfigService.api}/students`, config)
                 .then(response => {
                     let promise = response.json();
-                    promise.then(data => Mediator.Publish(this.Subscritions.CREATED, data));
+                    promise.then(data => MediatorService.Publish(this.Subscritions.CREATED, data));
                     return promise;
                 });
         }
@@ -106,10 +106,10 @@ const StudentsService = (() => {
                 body: params.toString()
             };
 
-            return fetch(`${Config.api}/students/${id}`, config)
+            return fetch(`${ConfigService.api}/students/${id}`, config)
                 .then(response => {
                     let promise = response.json();
-                    promise.then(data => Mediator.Publish(this.Subscritions.UPDATED, data));
+                    promise.then(data => MediatorService.Publish(this.Subscritions.UPDATED, data));
                     return promise;
                 });
         }
@@ -123,10 +123,10 @@ const StudentsService = (() => {
                 body: params.toString()
             };
 
-            return fetch(`${Config.api}/students/${id}`, config)
+            return fetch(`${ConfigService.api}/students/${id}`, config)
                 .then(response => {
                     let promise = response.json();
-                    promise.then(data => Mediator.Publish(this.Subscritions.REMOVED, data));
+                    promise.then(data => MediatorService.Publish(this.Subscritions.REMOVED, data));
                     return promise;
                 });
         }
