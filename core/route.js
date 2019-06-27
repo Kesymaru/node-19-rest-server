@@ -82,7 +82,7 @@ module.exports = class Route {
 
     async execute (req, res) {
         try {
-            if(this.method === 'POST' | this.method === 'PUT')
+            if(this.method === 'POST' | this.method === 'PUT' | this.method === 'DELETE')
                 this.body = await this.processPost(req, res);
             await this.controller(req, res, this);
         } catch (err) {

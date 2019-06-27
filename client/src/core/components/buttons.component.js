@@ -1,5 +1,6 @@
 (function () {
     const CONFIG = {
+        type: 'button',
         className: '',
         icon: '',
     };

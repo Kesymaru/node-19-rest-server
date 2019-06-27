@@ -129,11 +129,6 @@ function findById (id) {
     return students.data.find(student => student.id === id);
 }
 
-function sanitize2 (student) {
-    return FIELDS
-        .reduce((data, field) => Object.assign(data, {[`${field}`]: student[field]}), {});
-}
-
 function sanitize (source, fields = FIELDS) {
     return fields
         .filter(field => source[field])
@@ -175,10 +170,25 @@ function report (req, res, route) {
     });
 }
 
+function removeOne (req, res, route) {
+    let id = +route.params.id;
+
+    let students = require(FILE_NAME);
+    let idx = students.data.findIndex(s => s.id === id);
+    if(idx < 0) return Response.ApplicationError(res, new Error(`Could not find student id: ${id}`));
+
+    students.data.splice(idx, 1);
+
+    save(students)
+        .then(() => Response.Send(res, {success: true, id}))
+        .catch(err => Response.ApplicationError(res, err));
+}
+
 module.exports = {
     getAll,
     getOne,
     create,
     updateOne,
     report,
+    removeOne,
 };

@@ -115,13 +115,7 @@ const StudentsService = (() => {
         }
 
         remove (id) {
-            let params = new URLSearchParams();
-            params.append('id', id);
-
-            let config = {
-                method: 'DELETE',
-                body: params.toString()
-            };
+            let config = { method: 'DELETE' };
 
             return fetch(`${ConfigService.api}/students/${id}`, config)
                 .then(response => {

@@ -20,7 +20,9 @@ const NavigationService = (function () {
             route.active = true;
             this.active = route;
 
-            window.history.replaceState(route, route.title+' 2', route.link);
+            console.log('link', route.link());
+
+            window.history.replaceState(route, route.title, route.link(pathname));
             MediatorService.Publish(this.Subscritions.CHANGED, route);
         }
 
@@ -45,7 +47,7 @@ const NavigationService = (function () {
             this.active = route;
             route.active = true;
 
-            window.history.pushState(route, route.title, route.link);
+            window.history.pushState(route, route.title, route.link());
             MediatorService.Publish(this.Subscritions.CHANGED, route);
         }
 
@@ -81,10 +83,26 @@ const NavigationService = (function () {
             return new componentClass(this.params);
         }
 
-        get link () {
-            let path = this.path;
-            if(this.params) Object.keys(this.params)
-                .forEach(p => path = path.replace(`:${p}`, this.params[p]));
+        link (pathname = '') {
+            if(!pathname) {
+                let path = this.path;
+                if(this.params) Object.keys(this.params)
+                    .forEach(p => path = path.replace(`:${p}`, this.params[p]));
+                return `${this._origin}/${path}`;
+            }
+
+            let paths = pathname.split('/').filter(p => p);
+            this.params = {};
+            let path = this.paths
+                .map((p, i)=> {
+                    if(p.isParam) {
+                        this.params[p.path.replace(':', '')] = paths[i];
+                        return paths[i];
+                    }
+                    return p.path;
+                })
+                .join('/');
+
             return `${this._origin}/${path}`;
         }
     }

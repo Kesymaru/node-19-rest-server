@@ -21,14 +21,11 @@
         ];
         form = null;
 
-        constructor(student = null) {
+        constructor(id = null) {
             super();
 
-            this.student = student;
-            if(this.student) this.schema.map(schema => {
-                if(this.student[schema.name]) schema.value = this.student[schema.name];
-                return schema;
-            });
+            this.id = id;
+            if(this.id) this.load();
 
             MediatorService.Subscribe(StudentsService.Subscritions.CREATED, () => this.form.reset());
 
@@ -117,6 +114,19 @@
         showError (error) {
             this._error.innerText = error.message;
             setTimeout(() => this._error.innerText = '', 5000);
+        }
+
+        load () {
+            StudentsService.getOne(this.id)
+                .then(student => {
+                    this.student = student;
+                    if(this.student) this.schema.map(schema => {
+                        if(this.student[schema.name]) schema.value = this.student[schema.name];
+                        return schema;
+                    });
+                    this.render();
+                })
+                .catch(err => this.showError(err));
         }
     }
 

@@ -29,6 +29,11 @@ const routes = [
         path: '/api/v1/students/:id',
         controller: students.updateOne
     },
+    {
+        method: 'DELETE',
+        path: '/api/v1/students/:id',
+        controller: students.removeOne
+    },
 ];
 
 const server = http.createServer(Router.Register(routes));
