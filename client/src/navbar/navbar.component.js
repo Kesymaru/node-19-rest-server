@@ -1,9 +1,9 @@
-(function () {
+const NavbarComponent = (function () {
     class NavbarComponent extends HTMLElement {
         constructor(student = null) {
             super();
 
-            MediatorService.Subscribe(NavigationService.Subscritions.CHANGED, this.active.bind(this));
+            MediatorService.Subscribe(RouterService.Subscritions.CHANGED, this.active.bind(this));
 
             this.render();
         }
@@ -12,12 +12,11 @@
             let ul = document.createElement('ul');
             ul.className = 'right';
 
-            return NavigationService.routes
+            return ConfigService.routes
                 .filter(route => route.menu)
                 .map(route => {
                     let li = this._li(route);
                     li.dataset.path = route.path;
-                    if(route.active) li.classList = 'active';
                     return li;
                 })
                 .reduce((element, li) => element.appendChild(li).parentNode, ul);
@@ -27,7 +26,7 @@
             let li = document.createElement('li');
             let a = document.createElement('a');
             a.innerText = route.title;
-            a.addEventListener('click', () => NavigationService.go(route.path));
+            a.addEventListener('click', () => RouterService.go(route.path));
             li.appendChild(a);
             return li;
         }
@@ -48,8 +47,7 @@
             this.appendChild(this.nav);
         }
 
-        active () {
-            let route = NavigationService.active;
+        active (route) {
             this.menu.querySelectorAll('li').forEach(li => li.classList.remove('active'));
             let li = this.menu.querySelector(`li[data-path="${route.path}"]`);
             if(li) li.classList.add('active');
@@ -58,4 +56,5 @@
 
     // register custom html element
     customElements.define(`${ConfigService.prefix}-navbar`, NavbarComponent);
-})()
+    return NavbarComponent;
+})();

@@ -4,23 +4,24 @@ const ConfigService = (function(){
         {
             path: 'students',
             title: 'Students',
-            component: 'StudentComponent',
+            callback: (route) => new StudentComponent(route),
             menu: true,
-            default: true,
         },
         {
             path: 'students/create',
             title: 'Create Student',
-            component: 'StudentFormComponent',
+            callback: (route) => new StudentFormComponent(route),
             menu: true,
         },
         {
             path: 'students/:id',
             title: 'Edit Student',
-            component: 'StudentFormComponent',
+            callback: (route) => new StudentFormComponent(route),
             menu: false,
         },
     ];
+
+    // config object
     const DEFAULT_CONFIG = Object.freeze({
         prefix,
         routes: ROUTES,
@@ -34,4 +35,4 @@ const ConfigService = (function(){
         api: 'http://localhost:5000/api/v1',
     });
     return Object.assign({}, DEFAULT_CONFIG);
-})()
+})();

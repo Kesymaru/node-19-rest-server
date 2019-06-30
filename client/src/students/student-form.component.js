@@ -1,4 +1,4 @@
-(function () {
+const StudentFormComponent = (function () {
     class StudentFormComponent extends HTMLElement {
         schema = [
             {
@@ -20,11 +20,12 @@
             },
         ];
         form = null;
+        id = null;
 
-        constructor(id = null) {
+        constructor(route = null) {
             super();
 
-            this.id = id;
+            if(route) this.id = route.params.id;
             if(this.id) this.load();
 
             MediatorService.Subscribe(StudentsService.Subscritions.CREATED, () => this.form.reset());
@@ -74,7 +75,7 @@
             if(this.student) {
                 reset.text = 'Cancel';
                 reset.events = {
-                    click: () => NavigationService.go('students')
+                    click: () => RouterService.go('students')
                 };
 
                 this.form.appendChild(new ButtonComponent({
@@ -91,31 +92,6 @@
             this.appendChild(this.form);
         }
 
-        submit (event) {
-            event.preventDefault();
-
-            let student = this.schema
-                .reduce((t, s) => Object.assign(t, {[`${s.name}`]: this.form[s.name].value}), {})
-
-            let promise = this.student
-                ? StudentsService.update(this.student.id, student)
-                : StudentsService.create(student);
-
-            promise.then(() => NavigationService.go('students'))
-                .catch(err => this.showError(err));
-        }
-
-        remove () {
-            StudentsService.remove(this.student.id)
-                .then(() => NavigationService.go('students'))
-                .catch(this.showError.bind(this));
-        }
-
-        showError (error) {
-            this._error.innerText = error.message;
-            setTimeout(() => this._error.innerText = '', 5000);
-        }
-
         load () {
             StudentsService.getOne(this.id)
                 .then(student => {
@@ -128,9 +104,34 @@
                 })
                 .catch(err => this.showError(err));
         }
+
+        submit (event) {
+            event.preventDefault();
+
+            let student = this.schema
+                .reduce((t, s) => Object.assign(t, {[`${s.name}`]: this.form[s.name].value}), {})
+
+            let promise = this.student
+                ? StudentsService.update(this.student.id, student)
+                : StudentsService.create(student);
+
+            promise.then(() => RouterService.go('students'))
+                .catch(err => this.showError(err));
+        }
+
+        remove () {
+            StudentsService.remove(this.student.id)
+                .then(() => RouterService.go('students'))
+                .catch(this.showError.bind(this));
+        }
+
+        showError (error) {
+            this._error.innerText = error.message;
+            setTimeout(() => this._error.innerText = '', 5000);
+        }
     }
 
     // register custom html element
     customElements.define(`${ConfigService.prefix}-student-form`, StudentFormComponent);
-    window.StudentFormComponent = StudentFormComponent;
-})()
+    return StudentFormComponent;
+})();

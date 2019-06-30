@@ -14,6 +14,7 @@ const StudentsService = (() => {
             CREATED: `STUDENT_ADDED`,
             UPDATED: `STUDENT_UPDATED`,
             REMOVED: `STUDENT_REMOVED`,
+            GET_ONE: `STUDENT_GET_ONE`,
         });
 
         constructor() {}
@@ -121,6 +122,16 @@ const StudentsService = (() => {
                 .then(response => {
                     let promise = response.json();
                     promise.then(data => MediatorService.Publish(this.Subscritions.REMOVED, data));
+                    return promise;
+                });
+        }
+
+        getOne (id) {
+            console.log('get one', id);
+            return fetch(`${ConfigService.api}/students/${id}`)
+                .then(response => {
+                    let promise = response.json();
+                    promise.then(data => MediatorService.Publish(this.Subscritions.GET_ONE, data));
                     return promise;
                 });
         }

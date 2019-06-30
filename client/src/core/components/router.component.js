@@ -1,29 +1,27 @@
-(function () {
+const RouterComponent = (function () {
     class RouterComponent extends HTMLElement {
-        _element = null;
-        _route = null;
+        content = null; // router outlet content
+        route = null; // active route
 
-        constructor(student = null) {
+        constructor() {
             super();
 
-            MediatorService.Subscribe(NavigationService.Subscritions.CHANGED, this.render.bind(this));
-            if(NavigationService.active) this.render();
+            MediatorService.Subscribe(RouterService.Subscritions.CHANGED, this.render.bind(this));
+            if(RouterService.active) this.render();
         }
 
-        render () {
-            let route = NavigationService.active;
-            if(this._route && this._route === route) return;
-            this._route = route;
+        render (route) {
+            console.log("render", route);
+            let component = route.execute();
+            if(!component) return false;
 
-            let element = this._route.component;
-            console.log('router element', element);
-
-            if(this._element) this.replaceChild(element, this._element);
-            else this.appendChild(element);
-            this._element = element;
+            if(this.content) this.replaceChild(component, this.content);
+            else this.appendChild(component);
+            this.content = component;
         }
     }
 
     // register custom html element
     customElements.define(`${ConfigService.prefix}-router-outlet`, RouterComponent);
+    return RouterComponent;
 })()

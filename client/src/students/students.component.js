@@ -1,7 +1,7 @@
 /**
  * Students Component
  */
-(function() {
+const StudentComponent = (function() {
     class StudentComponent extends HTMLElement {
         loading = false;
 
@@ -103,7 +103,7 @@
 
         _tr (student) {
             let tr = document.createElement('tr');
-            tr.addEventListener('dblclick', () => NavigationService.go('students/:id', student));
+            tr.addEventListener('dblclick', () => RouterService.go(`students/${student.id}`));
 
             return Object.keys(student)
                 .map(key => this._td(student[key]))
@@ -217,5 +217,5 @@
 
     // register custom html element
     customElements.define(`${ConfigService.prefix}-students`, StudentComponent);
-    window.StudentComponent = StudentComponent;
+    return StudentComponent;
 })();
