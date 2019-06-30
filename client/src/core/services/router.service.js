@@ -8,7 +8,6 @@ const RouterService = (function () {
             this.router = new Router(ConfigService.routes || []);
 
             let {pathname, search} = window.location;
-
             this.go(`${pathname}${search}`);
         }
 

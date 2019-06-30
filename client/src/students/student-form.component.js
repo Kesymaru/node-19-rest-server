@@ -49,16 +49,16 @@ const StudentFormComponent = (function () {
         }
 
         render () {
-            this.form = document.createElement('form');
+            let form = document.createElement('form');
 
             Object.keys(this.schema)
                 .map(k => this._input(this.schema[k]))
-                .reduce((f, i) => f.appendChild(i).parentNode, this.form);
+                .reduce((f, i) => f.appendChild(i).parentNode, form);
 
             this._error = document.createElement('div');
-            this.form.appendChild(this._error);
+            form.appendChild(this._error);
 
-            this.form.appendChild(new ButtonComponent({
+            form.appendChild(new ButtonComponent({
                 text: 'Submit',
                 type: 'submit',
                 className: 'waves-effect waves-light btn red',
@@ -78,7 +78,7 @@ const StudentFormComponent = (function () {
                     click: () => RouterService.go('students')
                 };
 
-                this.form.appendChild(new ButtonComponent({
+                form.appendChild(new ButtonComponent({
                     text: 'Remove',
                     className: 'waves-effect waves-light btn',
                     events: {
@@ -86,10 +86,13 @@ const StudentFormComponent = (function () {
                     }
                 }));
             }
-            this.form.appendChild(new ButtonComponent(reset));
+            form.appendChild(new ButtonComponent(reset));
 
-            this.form.addEventListener('submit', this.submit.bind(this));
-            this.appendChild(this.form);
+            form.addEventListener('submit', this.submit.bind(this));
+
+            if(this.form) this.replaceChild(form, this.form);
+            else this.appendChild(form);
+            this.form = form;
         }
 
         load () {
